@@ -1,6 +1,7 @@
 import os, time, sys, shutil
 import datetime
 from stat import * 
+from operator import itemgetter
 
 
 #filepath = raw_input('Enter file path')
@@ -11,9 +12,17 @@ for entry in os.listdir(filepath):
 	pathname = os.path.join(filepath, entry)
 	statInfo = os.stat(pathname)
 	dateInfo = datetime.datetime.fromtimestamp(statInfo.st_mtime)
+	
 	# dateInfo.day does not include the leading zero in the day
-	# this causes the order to not be correct when sorting, add at some point
-	dateStr = str(dateInfo.year) + '-' + str(dateInfo.month) + '-' + str(dateInfo.day)
+	# add leading zero to day
+	if dateInfo.day < 10:
+		dayString = '0' + str(dateInfo.day)
+	else:
+		dayString = str(dateInfo.day)
+	# ------------------------
+	# consider adding minute to this string to further sort
+	# ------------------------	
+	dateStr = str(dateInfo.year) + '-' + str(dateInfo.month) + '-' + dayString
 	
 	# create dictionary with filename and date pairs
 	if files.has_key(pathname):
@@ -23,13 +32,25 @@ for entry in os.listdir(filepath):
 		files[pathname] = dateStr
 
 
-# ********* stopped here *********** 
-# sort list based on date
-newD = sorted(files, key=files.__getitem__)
-print newD
-# ****************************
 
-# ^ ----------------------------------------------------
+# sort list based on date
+
+myFileList = files.items()
+
+#sorted based on the date, which is the second value of the tuple in list
+mySortedList = sorted(myFileList, key=itemgetter(1))
+
+#accessing individual elements of the list
+for i in range(len(mySortedList)):
+	print mySortedList[i][0], mySortedList[i][1]
+
+# ********* stopped here *********** 
+# next steps
+# loop through all files & dates
+# set date as current
+# call function to create new file name
+# rename file
+# ****************************
 
 # iterate through sorted list
 # create new filename string
