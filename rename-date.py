@@ -1,61 +1,68 @@
-import os, time, sys, shutil
-import datetime
+#!/usr/bin/python
+
+import os, time, sys, shutil, re
+import datetime, imghdr, platform
+import Tkinter
 from stat import * 
-from operator import itemgetter
+from operator import itemgetter 
 
+# ACTION: prompt user for name & date range
+# Append descriptor to filename
 
-#filepath = raw_input('Enter file path')
-#print filepath
+userDescription = ''
+userDescription = raw_input('Enter file description (press enter when done): ')
+if re.search('[!@#$%\^&*,./;:\'"]', userDescription):
+	print 'Invalid user description'
+	# ACTION: Additional bonus points to simply remove bad characters
+	userDescription = ''
+if len(userDescription) > 0:
+	userDescription = userDescription + ' '
+
 filepath = '/home/justin/Pictures/Test_Folder'
-files = {}
-for entry in os.listdir(filepath):
-	pathname = os.path.join(filepath, entry)
+fileDict = {}
+files = [f for f in os.listdir('.') if os.path.isfile(f)]
+for f in files: # replace '.' with filepath
+	pathname = os.path.join('.', f)
+	if (imghdr.what(pathname) is None): 
+		continue	
 	statInfo = os.stat(pathname)
-	dateInfo = datetime.datetime.fromtimestamp(statInfo.st_mtime)
-	
-	# dateInfo.day does not include the leading zero in the day
-	# add leading zero to day
-	if dateInfo.day < 10:
-		dayString = '0' + str(dateInfo.day)
+	if (platform.system() == 'Windows'):
+		dateInfo = datetime.datetime.fromtimestamp(statInfo.st_ctime)
 	else:
-		dayString = str(dateInfo.day)
-	# ------------------------
-	# consider adding minute to this string to further sort
-	# ------------------------	
-	dateStr = str(dateInfo.year) + '-' + str(dateInfo.month) + '-' + dayString
+		# System is likely Linux
+		dateInfo = datetime.datetime.fromtimestamp(statInfo.st_mtime)
+
+	dateStr = '{:%Y-%m-%d_%H:%M:%S}'.format(dateInfo)
 	
 	# create dictionary with filename and date pairs
-	if files.has_key(pathname):
+	if fileDict.has_key(pathname):
 		print 'File Dictionary already contains ',pathname
 	else:
 		#add to the dictionary
-		files[pathname] = dateStr
+		fileDict[pathname] = dateStr
 
-
-
-# sort list based on date
-
-myFileList = files.items()
+# create list from dictionary
+myFileList = fileDict.items()
 
 #sorted based on the date, which is the second value of the tuple in list
 mySortedList = sorted(myFileList, key=itemgetter(1))
 
-#accessing individual elements of the list
-for i in range(len(mySortedList)):
-	print mySortedList[i][0], mySortedList[i][1]
 
-# ********* stopped here *********** 
-# next steps
-# loop through all files & dates
-# set date as current
-# call function to create new file name
-# rename file
-# ****************************
+iterDate = None
+count = 0
 
-# iterate through sorted list
-# create new filename string
-# check if a filename already exists
-# os.rename(src, dest)
+for i in range(len(mySortedList)):	
+	if(iterDate == mySortedList[i][1][:10]):
+		index = index + 1
+	else:
+		index = 1
+	iterDate = mySortedList[i][1][:10]
+	# ACTION: possibly turn this into a function to re-use later
+	newFileName = os.path.join('.', userDescription + iterDate + '(' + "%03d"%index + ')')
+	os.rename(mySortedList[i][0], newFileName)
+	count = count + 1
+
+print 'Number of files renamed: ',count
 
 
 
