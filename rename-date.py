@@ -11,6 +11,7 @@ from operator import itemgetter
 
 userDescription = ''
 userDescription = raw_input('Enter file description (press enter when done): ')
+fileExtension = raw_input('Enter file extension to affect: ')
 if re.search('[!@#$%\^&*,./;:\'"]', userDescription):
 	print 'Invalid user description'
 	# ACTION: Additional bonus points to simply remove bad characters
@@ -18,9 +19,9 @@ if re.search('[!@#$%\^&*,./;:\'"]', userDescription):
 if len(userDescription) > 0:
 	userDescription = userDescription + ' '
 
-filepath = '/home/justin/Pictures/Test_Folder'
+#filepath = '/home/justin/Pictures/Test_Folder'
 fileDict = {}
-files = [f for f in os.listdir('.') if os.path.isfile(f)]
+files = [f for f in os.listdir('.') if (os.path.isfile(f) and (f.endswith(fileExtension)))]
 for f in files: # replace '.' with filepath
 	pathname = os.path.join('.', f)
 	if (imghdr.what(pathname) is None): 
@@ -46,7 +47,11 @@ myFileList = fileDict.items()
 
 #sorted based on the date, which is the second value of the tuple in list
 mySortedList = sorted(myFileList, key=itemgetter(1))
-
+print 'You are about to rename', len(mySortedList), 'files'
+userAnswer = raw_input('Are you sure you want to continue (Y/N)?: ')
+if userAnswer == 'N' or userAnswer == 'n':
+    print 'Program terminated'
+    exit()
 
 iterDate = None
 count = 0
@@ -58,7 +63,7 @@ for i in range(len(mySortedList)):
 		index = 1
 	iterDate = mySortedList[i][1][:10]
 	# ACTION: possibly turn this into a function to re-use later
-	newFileName = os.path.join('.', userDescription + iterDate + '(' + "%03d"%index + ')')
+	newFileName = os.path.join('.', userDescription + iterDate + '(' + "%03d"%index + ')' + fileExtension)
 	os.rename(mySortedList[i][0], newFileName)
 	count = count + 1
 
