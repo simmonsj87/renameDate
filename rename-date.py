@@ -3,8 +3,8 @@
 import os, time, sys, shutil, re
 import datetime, imghdr, platform
 import Tkinter
-from stat import * 
-from operator import itemgetter 
+from stat import *
+from operator import itemgetter
 
 # ACTION: prompt user for name & date range
 # Append descriptor to filename
@@ -12,6 +12,7 @@ from operator import itemgetter
 userDescription = ''
 userDescription = raw_input('Enter file description (press enter when done): ')
 fileExtension = raw_input('Enter file extension to affect: ')
+
 if re.search('[!@#$%\^&*,./;:\'"]', userDescription):
 	print 'Invalid user description'
 	# ACTION: Additional bonus points to simply remove bad characters
@@ -24,8 +25,8 @@ fileDict = {}
 files = [f for f in os.listdir('.') if (os.path.isfile(f) and (f.endswith(fileExtension)))]
 for f in files: # replace '.' with filepath
 	pathname = os.path.join('.', f)
-	if (imghdr.what(pathname) is None): 
-		continue	
+	if (imghdr.what(pathname) is None):
+		continue
 	statInfo = os.stat(pathname)
 	if (platform.system() == 'Windows'):
 		dateInfo = datetime.datetime.fromtimestamp(statInfo.st_ctime)
@@ -34,7 +35,7 @@ for f in files: # replace '.' with filepath
 		dateInfo = datetime.datetime.fromtimestamp(statInfo.st_mtime)
 
 	dateStr = '{:%Y-%m-%d_%H:%M:%S}'.format(dateInfo)
-	
+
 	# create dictionary with filename and date pairs
 	if fileDict.has_key(pathname):
 		print 'File Dictionary already contains ',pathname
@@ -53,10 +54,15 @@ if userAnswer == 'N' or userAnswer == 'n':
     print 'Program terminated'
     exit()
 
+newExtension = raw_input('Do you want to change the file extension (Y/N)?: ')
+if newExtension == 'Y' or newExtension == 'y':
+	fileExtension = raw_input('Enter new file extension: ')
+
+
 iterDate = None
 count = 0
 
-for i in range(len(mySortedList)):	
+for i in range(len(mySortedList)):
 	if(iterDate == mySortedList[i][1][:10]):
 		index = index + 1
 	else:
@@ -68,6 +74,3 @@ for i in range(len(mySortedList)):
 	count = count + 1
 
 print 'Number of files renamed: ',count
-
-
-
